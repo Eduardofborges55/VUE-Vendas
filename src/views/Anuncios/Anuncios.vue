@@ -38,18 +38,31 @@ import {ref, onMounted } from 'vue'
 import produtoService, { Produto } from '../../services/produtoService'
 
 const produtos = ref<Produto[]>([])
-const produto = ref<Produto>({
+const produto = ref<Omit<Produto, 'img'> & { img: File | null }>({
   Nome: '', Preco: 0, Descricao: '', Quantidade: 0,
-  Id: 0
+  Id: 0,
+  img: null
 })
 
 onMounted(async () => {
     produtos.value = await produtoService.listar()
 })
-
 async function adicionarProduto() {
-    await produtoService.salvar(produto.value)
-    produto.value= { Id: 0, Nome: '', Preco: 0, Descricao: '', Quantidade: 0 , img: '' }
-    produtos.value = await produtoService.listar()
+    // Convert File to base64 or handle upload as needed before saving
+    if (produto.value.img && produto.value.img instanceof window.File) {
+        const reader = new FileReader()
+        reader.onload = async (e) => {
+            const base64Img = e.target?.result as string
+            await produtoService.salvar({ ...produto.value, img: base64Img })
+            produto.value = { Id: 0, Nome: '', Preco: 0, Descricao: '', Quantidade: 0, img: null }
+            produtos.value = await produtoService.listar()
+        }
+        reader.readAsDataURL(produto.value.img)
+    } else {
+        await produtoService.salvar({ ...produto.value, img: undefined })
+        produto.value = { Id: 0, Nome: '', Preco: 0, Descricao: '', Quantidade: 0, img: null }
+        produtos.value = await produtoService.listar()
+    }
 }
+
 </script>

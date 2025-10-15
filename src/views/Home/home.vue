@@ -28,7 +28,7 @@
       >
         <v-card elevation="2" height="100%">
           <v-img
-            src="https://m.media-amazon.com/images/I/61Li7rC13PL._AC_SX679_.jpg"
+            :src="produto.img || 'https://m.media-amazon.com/images/I/61Li7rC13PL._AC_SX679_.jpg'"
             height="150"
             cover
             class="bg-grey-lighten-2"
@@ -51,8 +51,15 @@
           </v-card-text>
 
           <v-card-actions>
-            <v-btn variant="outlined" color="primary" block>
-              Ver detalhes
+            <v-btn
+              variant="outlined"
+              color="primary"
+              block
+              @click="addToCart(produto)"
+              :disabled="produto.Quantidade === 0"
+            >
+              <v-icon start>mdi-cart</v-icon>
+              Adicionar ao carrinho
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -68,12 +75,38 @@
         />
       </v-col>
     </v-row>
+
+    <!-- Snackbar -->
+    <v-snackbar
+      v-model="snackbar.show"
+      :color="snackbar.color"
+      :timeout="3000"
+    >
+      {{ snackbar.message }}
+      
+      <template v-slot:actions>
+        <v-btn
+          variant="text"
+          @click="snackbar.show = false"
+        >
+          Fechar
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import produtoService, { Produto } from '../../services/produtoService'
+import { useRouter } from 'vue-router'
+import { getCurrentInstance } from 'vue'
+// Simple event emitter for cart actions
+import mitt from 'mitt'
+import { useCartStore } from '../../stores/cartStore'
+const emitter = mitt()
+
+const router = useRouter()
 const produtos = ref<Produto[]>([])
 const loading = ref(true)
 const search = ref('')
@@ -89,26 +122,52 @@ const produtosDemo: Produto[] = [
   }
 ]
 
+const addToCart = (produto: Produto) => {
+  try {
+    useCartStore().addToCart(produto)
+    showSnackbar('Produto adicionado ao carrinho!', 'success')
+  } catch (error) {
+    console.error('Error adding to cart:', error)
+    showSnackbar('Erro ao adicionar ao carrinho', 'error')
+  }
+}
+
+const snackbar = ref({
+  show: false,
+  message: '',
+  color: 'success'
+})
+
+const showSnackbar = (message: string, color: 'success' | 'error') => {
+  snackbar.value = {
+    show: true,
+    message,
+    color
+  }
+  setTimeout(() => {
+    snackbar.value.show = false
+  }, 3000)
+}
+
 onMounted(async () => {
   try {
     loading.value = true
-    // Busca produtos da API
     const response = await produtoService.listar()
     produtos.value = response
 
-    // Se não houver produtos, adiciona os produtos de demonstração
     if (produtos.value.length === 0) {
       produtos.value = produtosDemo
     }
   } catch (error) {
-    console.error('Erro ao carregar produtos:', error)
-    // Em caso de erro, mostra os produtos de demonstração
+    console.error('Erro ao buscar produtos:', error)
     produtos.value = produtosDemo
   } finally {
     loading.value = false
   }
 })
 </script>
+
+<!-- Rest of the template remains the same -->
 
 <style scoped>
 .v-card {
@@ -117,5 +176,9 @@ onMounted(async () => {
 
 .v-card:hover {
   transform: translateY(-5px);
+}
+
+.v-btn {
+  text-transform: none;
 }
 </style>
