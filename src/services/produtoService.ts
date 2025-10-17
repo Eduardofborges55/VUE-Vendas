@@ -1,16 +1,17 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'https://localhost:5000/api'
+  baseURL: 'http://localhost:5212/api'
 })
 
 export interface Produto {
-  Id: number
-  Nome: string
-  Descricao?: string
-  Preco: number
-  Quantidade: number
-  img?: string
+  id: number
+  nome: string
+  descricao?: string
+  preco: number
+  quantidade: number
+  Quantidade?: number
+  imagem: string
 }
 
 export default {
@@ -28,7 +29,7 @@ export default {
   },
 
   async editar(produto: Produto): Promise<void> {
-    await api.put(`/produtos/${produto.Id}`, produto)
+    await api.put(`/produtos/${produto.id}`, produto)
   },
 
   async buscarPorId(id: number): Promise<Produto> {

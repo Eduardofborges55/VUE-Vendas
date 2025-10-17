@@ -46,15 +46,15 @@
           </div>
 
           <v-list v-else>
-            <v-list-item v-for="item in cartItems" :key="item.Id">
+            <v-list-item v-for="item in cartItems" :key="item.id">
               <v-list-item-avatar tile size="80">
-                <v-img :src="item.img || 'https://via.placeholder.com/80'"></v-img>
+                <v-img :src="item.imagem"></v-img>
               </v-list-item-avatar>
 
               <v-list-item-content>
-                <v-list-item-title class="text-h6">{{ item.Nome }}</v-list-item-title>
-                <v-list-item-subtitle>R$ {{ item.Preco.toFixed(2) }}</v-list-item-subtitle>
-                
+                <v-list-item-title class="text-h6">{{ item.nome }}</v-list-item-title>
+                <v-list-item-subtitle>R$ {{ item.preco.toFixed(2) }}</v-list-item-subtitle>
+
                 <v-row align="center" class="mx-0">
                   <v-btn small icon @click="decrementQuantity(item)">
                     <v-icon>mdi-minus</v-icon>
@@ -104,12 +104,12 @@ const cartItemCount = computed(() =>
 )
 
 const cartTotal = computed(() => 
-  cartItems.value.reduce((total, item) => total + (item.Preco * item.cartQuantity), 0)
+  cartItems.value.reduce((total, item) => total + (item.preco * item.cartQuantity), 0)
 )
 
 const addToCart = (produto: Produto) => {
-  const existingItem = cartItems.value.find(item => item.Id === produto.Id)
-  
+  const existingItem = cartItems.value.find(item => item.id === produto.id)
+
   if (existingItem) {
     existingItem.cartQuantity++
   } else {
@@ -121,13 +121,13 @@ const addToCart = (produto: Produto) => {
 }
 
 const removeFromCart = (item: Produto & { cartQuantity: number }) => {
-  cartItems.value = cartItems.value.filter(cartItem => cartItem.Id !== item.Id)
+  cartItems.value = cartItems.value.filter(cartItem => cartItem.id !== item.id)
 }
 
 const incrementQuantity = (item: Produto & { cartQuantity: number }) => {
-  if (item.cartQuantity < item.Quantidade) {
+  //if (item.cartQuantity < item.Quantidade) {
     item.cartQuantity++
-  }
+  //}
 }
 
 const decrementQuantity = (item: Produto & { cartQuantity: number }) => {

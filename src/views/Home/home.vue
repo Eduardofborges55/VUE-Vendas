@@ -20,7 +20,7 @@
     <v-row>
       <v-col
         v-for="produto in produtos"
-        :key="produto.Id"
+        :key="produto.id"
         cols="12"
         sm="6"
         md="4"
@@ -28,26 +28,25 @@
       >
         <v-card elevation="2" height="100%">
           <v-img
-            :src="produto.img || 'https://m.media-amazon.com/images/I/61Li7rC13PL._AC_SX679_.jpg'"
+            :src="produto.imagem"
             height="150"
             cover
             class="bg-grey-lighten-2"
           />
           
           <v-card-title class="text-h6">
-            {{ produto.Nome }}
+            {{ produto.nome }}
           </v-card-title>
 
           <v-card-text>
             <div class="text-h6 text-primary mb-2">
-              R$ {{ produto.Preco.toFixed(2) }}
+              R$ {{ produto.preco.toFixed(2) }}
             </div>
             <div class="mb-2">
               <v-chip size="small" color="success" class="mr-2">
-                {{ produto.Quantidade }} em estoque
               </v-chip>
             </div>
-            <p class="text-body-2">{{ produto.Descricao || 'Sem descrição disponível' }}</p>
+            <p class="text-body-2">{{ produto.descricao || 'Sem descrição disponível' }}</p>
           </v-card-text>
 
           <v-card-actions>
@@ -112,15 +111,7 @@ const loading = ref(true)
 const search = ref('')
 
 // Produtos de demonstração
-const produtosDemo: Produto[] = [
-  {
-    Id: 2,
-    Nome: 'Smartphone Motorola G9 Plus',
-    Descricao: 'Um excelente smartphone com ótimo custo-benefício',
-    Preco: 1299.99,
-    Quantidade: 10
-  }
-]
+
 
 const addToCart = (produto: Produto) => {
   try {
@@ -156,11 +147,11 @@ onMounted(async () => {
     produtos.value = response
 
     if (produtos.value.length === 0) {
-      produtos.value = produtosDemo
+      produtos.value = []
     }
   } catch (error) {
     console.error('Erro ao buscar produtos:', error)
-    produtos.value = produtosDemo
+    produtos.value = []
   } finally {
     loading.value = false
   }

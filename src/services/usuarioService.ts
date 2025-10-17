@@ -12,6 +12,7 @@ export interface Usuario {
   email: string
   senha: string
   telefone: string
+  imagem?: string
 }
 
 export default {

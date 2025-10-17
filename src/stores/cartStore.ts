@@ -7,21 +7,21 @@ export const useCartStore = defineStore('cart', {
   }),
   actions: {
     addToCart(produto: Produto) {
-      const existing = this.items.find(item => item.Id === produto.Id)
-      if (existing) {
-        existing.Quantidade++
+      const existing = this.items.find(item => item.id === produto.id)
+      if ((produto as { Quantidade: number }).Quantidade && (produto as { Quantidade: number }).Quantidade < (existing as { Quantidade: number }).Quantidade) {
+      (existing as { Quantidade: number }).Quantidade++
       } else {
-        this.items.push({ ...produto, Quantidade: 1 })
+       this.items.push({ ...produto, Quantidade: 1 })
       }
     },
     removeFromCart(id: number) {
-      this.items = this.items.filter(item => item.Id !== id)
+      this.items = this.items.filter(item => item.id !== id)
     },
     clearCart() {
       this.items = []
     }
   },
   getters: {
-    total: (state) => state.items.reduce((acc, item) => acc + item.Preco * item.Quantidade, 0)
+    total: (state) => state.items.reduce((acc, item) => acc + item.preco * (item.Quantidade ?? 0), 0)
   }
 })
