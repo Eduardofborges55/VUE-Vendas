@@ -5,12 +5,8 @@
     <v-form @submit.prevent="adicionarProduto">
       <v-text-field v-model="produto.nome" label="Nome" />
       <v-text-field v-model="produto.preco" label="Preço" type="number" />
-      <v-text-field
-        v-model="produto.descricao"
-        label="Descrição"
-        type="text"
-      />
-      <v-file-input v-img-model="produto.imagem" label="Imagem" type="file" />
+      <v-text-field v-model="produto.descricao" label="Descrição" type="text" />
+      <v-file-input v-model="produto.img" label="Imagem" accept="image/*" />
       <v-btn type="submit" color="primary">Adicionar</v-btn>
     </v-form>
     <v-divider class="my-4" />
@@ -49,12 +45,12 @@ const produto = ref<Omit<Produto, "img"> & { img: File | null }>({
   id: 0,
   imagem: "",
   quantidade: 0,
-  img: null
+  img: null,
 });
 
 onMounted(async () => {
   produtos.value = await produtoService.listar();
-  console.log('Produtos carregados:', produtos.value);
+  console.log("Produtos carregados:", produtos.value);
 });
 
 async function adicionarProduto() {
@@ -73,7 +69,7 @@ async function adicionarProduto() {
 
         // Faz o POST (ou chama o serviço)
         const response = await axios.post("http://localhost:5212/api/produto", {
-  //        ...produto.value,
+          ...produto.value,
           img: base64Img,
         });
 
@@ -84,15 +80,15 @@ async function adicionarProduto() {
         }
 
         // Limpa o formulário e recarrega lista
-        const produto = ref<Omit<Produto, "img"> & { img: File | null }>({
+        produto.value = {
+          id: 0,
           nome: "",
           preco: 0,
-          id: 0,
           descricao: "",
           imagem: "",
           quantidade: 0,
-          img: null
-        });
+          img: null,
+        };
 
         produtos.value = await produtoService.listar();
       };
@@ -115,7 +111,7 @@ async function adicionarProduto() {
         descricao: "",
         imagem: "",
         quantidade: 0,
-        img: null
+        img: null,
       };
 
       produtos.value = await produtoService.listar();
@@ -124,5 +120,4 @@ async function adicionarProduto() {
     console.error("Erro ao adicionar produto:", error);
   }
 }
-
 </script>
