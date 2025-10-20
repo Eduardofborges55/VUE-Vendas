@@ -40,13 +40,13 @@
         </v-card-title>
 
         <v-card-text class="mt-4">
-          <div v-if="cartItems.length === 0" class="text-center pa-4">
+          <div v-if="cartStore.items.length === 0" class="text-center pa-4">
             <v-icon size="64" color="grey lighten-1">mdi-cart-outline</v-icon>
             <p class="text-h6 grey--text mt-2">Seu carrinho está vazio</p>
           </div>
 
           <v-list v-else>
-            <v-list-item v-for="item in cartItems" :key="item.id">
+            <v-list-item v-for="item in cartStore.items" :key="item.id">
               <v-list-item-avatar tile size="80">
                 <v-img :src="item.imagem"></v-img>
               </v-list-item-avatar>
@@ -56,18 +56,18 @@
                 <v-list-item-subtitle>R$ {{ item.preco.toFixed(2) }}</v-list-item-subtitle>
 
                 <v-row align="center" class="mx-0">
-                  <v-btn small icon @click="decrementQuantity(item)">
+                  <v-btn small icon @click="cartStore.decrementQuantity(item.id)">
                     <v-icon>mdi-minus</v-icon>
                   </v-btn>
-                  <span class="mx-2">{{ item.cartQuantity }}</span>
-                  <v-btn small icon @click="incrementQuantity(item)">
+                  <span class="mx-2">{{ item.Quantidade }}</span>
+                  <v-btn small icon @click="cartStore.addToCart(item)">
                     <v-icon>mdi-plus</v-icon>
                   </v-btn>
                 </v-row>
               </v-list-item-content>
 
               <v-list-item-action>
-                <v-btn icon @click="removeFromCart(item)">
+                <v-btn icon @click="cartStore.removeFromCart(item.id)">
                   <v-icon color="error">mdi-delete</v-icon>
                 </v-btn>
               </v-list-item-action>
@@ -75,12 +75,12 @@
           </v-list>
         </v-card-text>
 
-        <v-divider v-if="cartItems.length > 0"></v-divider>
+        <v-divider v-if="cartStore.items.length > 0"></v-divider>
 
-        <v-card-actions v-if="cartItems.length > 0" class="pa-4">
-          <div class="text-h6">Total: R$ {{ cartTotal.toFixed(2) }}</div>
+        <v-card-actions v-if="cartStore.items.length > 0" class="pa-4">
+          <div class="text-h6">Total: R$ {{ cartStore.total.toFixed(2) }}</div>
           <v-spacer></v-spacer>
-          <v-btn color="error" text @click="clearCart">
+          <v-btn color="error" text @click="cartStore.clearCart">
             Limpar Carrinho
           </v-btn>
           <v-btn color="primary" @click="checkout">
@@ -94,65 +94,21 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { Produto } from '../../services/produtoService'
+import { useCartStore } from '../../stores/cartStore'
+import type { Produto } from '../../services/produtoService'
+import type { CartItem } from '../../stores/cartStore'
 
 const showCart = ref(false)
-const cartItems = ref<(Produto & { cartQuantity: number })[]>([])
+const cartStore = useCartStore()
 
 const cartItemCount = computed(() => 
-  cartItems.value.reduce((total, item) => total + item.cartQuantity, 0)
+  cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
 )
-
-const cartTotal = computed(() => 
-  cartItems.value.reduce((total, item) => total + (item.preco * item.cartQuantity), 0)
-)
-
-const addToCart = (produto: Produto) => {
-  const existingItem = cartItems.value.find(item => item.id === produto.id)
-
-  if (existingItem) {
-    existingItem.cartQuantity++
-  } else {
-    cartItems.value.push({
-      ...produto,
-      cartQuantity: 1
-    })
-  }
-}
-
-const removeFromCart = (item: Produto & { cartQuantity: number }) => {
-  cartItems.value = cartItems.value.filter(cartItem => cartItem.id !== item.id)
-}
-
-const incrementQuantity = (item: Produto & { cartQuantity: number }) => {
-  //if (item.cartQuantity < item.Quantidade) {
-    item.cartQuantity++
-  //}
-}
-
-const decrementQuantity = (item: Produto & { cartQuantity: number }) => {
-  if (item.cartQuantity > 1) {
-    item.cartQuantity--
-  } else {
-    removeFromCart(item)
-  }
-}
-
-const clearCart = () => {
-  cartItems.value = []
-}
 
 const checkout = () => {
-  console.log('Checkout:', cartItems.value)
+  console.log('Checkout:', cartStore.items)
+  // Implement checkout logic
 }
-
-// Expose methods to parent components
-defineExpose({
-  addToCart,
-  removeFromCart,
-  clearCart,
-  checkout
-})
 </script>
 
 <style scoped>
