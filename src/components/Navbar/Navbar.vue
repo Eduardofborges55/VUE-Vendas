@@ -95,9 +95,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useCartStore } from '../../stores/cartStore'
-import type { Produto } from '../../services/produtoService'
 import type { CartItem } from '../../stores/cartStore'
-
+import { finalizarCompra } from '../../services/compraService'
 const showCart = ref(false)
 const cartStore = useCartStore()
 
@@ -109,35 +108,26 @@ const checkout = () => {
   console.log('Checkout:', cartStore.items)
   // Implement checkout logic
 }
-</script>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useCartStore } from '../../stores/cartStore';
-import type { CartItem } from '../../stores/cartStore';
-import { finalizarCompra } from '../../services/pagamentoService';
+const processing = ref(false)
 
-const showCart = ref(false);
-const processing = ref(false);
-const cartStore = useCartStore();
-
-const cartItemCount = computed(() =>
+const cartItemCount2 = computed(() =>
   cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
 );
 
-async function checkout() {
+async function checkout2() {
   if (cartStore.items.length === 0) return;
 
   processing.value = true;
   try {
-    const response = await finalizarCompra(cartStore.items);
+    const response = await finalizarCompra(1, cartStore.items, cartStore.total);
     processing.value = false;
     showCart.value = false;
 
     if (response.status === 'aprovado') {
       alert('✅ Compra aprovada! Obrigado por comprar conosco.');
       cartStore.clearCart();
-  } else if response.status === 'processando' {
+  } else if (response.status === 'processando') {
     alert('`🕒 Pagamento em processamento (Pedido #${response.pedido_id})')
   } else {
     alert('❌ Pagamento recusado. Por favor, tente novamente.');
