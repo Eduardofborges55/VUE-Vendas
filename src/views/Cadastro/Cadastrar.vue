@@ -6,7 +6,7 @@
     <v-form @submit.prevent="salvarUsuario">
       <v-text-field v-model="usuario.nome" label="Nome" />
       <v-text-field v-model="usuario.email" label="Email" />
-      <v-text-field v-model="usuario.senha" label="Senha" type="password" />
+      <v-text-field v-model="usuario.Senha" label="Senha" type="password" />
       <v-text-field v-model="usuario.telefone" label="Telefone" />
       <v-text-field v-model="usuario.cpf" label="CPF" />
       <v-btn type="submit" color="primary">Cadastrar</v-btn>
@@ -26,7 +26,7 @@ const usuario = ref<Usuario>({
   nome: '',
   cpf: '',
   email: '',
-  senha: '',
+  Senha: '',
   telefone: ''
 })
 
@@ -52,7 +52,9 @@ async function makeApiRequest() {
 function validarCPF(cpf: string): boolean {
   cpf = cpf.replace(/\D/g, '')
 
-  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false
+  if (cpf.length < 11) return false
+
+  if (/^(\d)\1+$/.test(cpf)) return false
 
   let soma = 0
   for (let i = 0; i < 9; i++) soma += parseInt(cpf.charAt(i)) * (10 - i)
@@ -94,7 +96,7 @@ async function salvarUsuario() {
       nome: '',
       cpf: '',
       email: '',
-      senha: '',
+      Senha: '',
       telefone: ''
     }
   } catch (error) {
