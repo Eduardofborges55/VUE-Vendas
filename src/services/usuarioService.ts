@@ -10,7 +10,7 @@ export interface Usuario {
   nome: string
   cpf: string
   email: string
-  senha: string
+  SenhaHash: string
   telefone: string
   imagem?: string
 }
