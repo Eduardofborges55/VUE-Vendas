@@ -111,6 +111,45 @@ const checkout = () => {
 }
 </script>
 
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useCartStore } from '../../stores/cartStore';
+import type { CartItem } from '../../stores/cartStore';
+import { finalizarCompra } from '../../services/pagamentoService';
+
+const showCart = ref(false);
+const processing = ref(false);
+const cartStore = useCartStore();
+
+const cartItemCount = computed(() =>
+  cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
+);
+
+async function checkout() {
+  if (cartStore.items.length === 0) return;
+
+  processing.value = true;
+  try {
+    const response = await finalizarCompra(cartStore.items);
+    processing.value = false;
+    showCart.value = false;
+
+    if (response.status === 'aprovado') {
+      alert('✅ Compra aprovada! Obrigado por comprar conosco.');
+      cartStore.clearCart();
+  } else if response.status === 'processando' {
+    alert('`🕒 Pagamento em processamento (Pedido #${response.pedido_id})')
+  } else {
+    alert('❌ Pagamento recusado. Por favor, tente novamente.');
+  }
+} catch (error) {
+    processing.value = false;
+    console.error('Erro no checkout:', error);
+    alert('Erro ao processar o pagamento. Por favor, tente novamente.');
+  }
+}
+</script>
+
 <style scoped>
 .v-dialog {
   border-radius: 8px;
