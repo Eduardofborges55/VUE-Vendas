@@ -3,14 +3,21 @@
     <v-app-bar app color="primary" dark>
       <v-toolbar-title>Qualquer Coisa Store</v-toolbar-title>
       <v-spacer />
-      <v-btn to="/" text>Cadastro</v-btn>
-      <v-btn to="/login" text>login</v-btn>
+
+      <template v-if="!isLoggedIn">
+        <v-btn to="/" text>Cadastro</v-btn>
+        <v-btn to="/login" text>login</v-btn>
+      </template>
+      <template v-else>
+        <v-btn text @click="logout">Sair</v-btn>
+      </template>
+
       <v-btn to="/Home" text>Home</v-btn>
       <!-- <v-btn to="/administracao" text>Administracao</v-btn> -->
       <!-- <v-btn to="/denuncia" text>Denuncia</v-btn> -->
       <v-btn to="/anuncios" text>Anuncios</v-btn>
       <v-btn to="/perfil" text>Perfil</v-btn>
-      
+
       <v-btn
         class="ma-2"
         color="white"
@@ -84,7 +91,7 @@
             Limpar Carrinho
           </v-btn>
           <v-btn color="primary" @click="checkout">
-            Finalizar Compra
+            Comprar
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -93,50 +100,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useCartStore } from '../../stores/cartStore'
 import type { CartItem } from '../../stores/cartStore'
 import { finalizarCompra } from '../../services/compraService'
+import { tr } from 'vuetify/locale'
+
+
 const showCart = ref(false)
 const cartStore = useCartStore()
+const isLoggedIn = ref(false);
 
-const cartItemCount = computed(() => 
-  cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
-)
-
-const checkout = () => {
-  console.log('Checkout:', cartStore.items)
-  // Implement checkout logic
+onMounted(() => {
+  const checkToken = setInterval(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      isLoggedIn.value = true;
+      clearInterval(checkToken);
+    }
+  }, 100); // checa a cada 100ms
+});
+function logout() {
+  localStorage.removeItem('user');
+  localStorage.removeItem('token');
+  isLoggedIn.value = false;
+  window.location.href = '/login'; // Redireciona para a página de login
 }
+
+// const cartItemCount = computed(() => 
+//   cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
+// )
 
 const processing = ref(false)
 
-const cartItemCount2 = computed(() =>
+const cartItemCount = computed(() =>
   cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)
 );
 
-async function checkout2() {
+async function checkout() {
   if (cartStore.items.length === 0) return;
 
   processing.value = true;
-  try {
-    const response = await finalizarCompra(1, cartStore.items, cartStore.total);
-    processing.value = false;
-    showCart.value = false;
 
-    if (response.status === 'aprovado') {
-      alert('✅ Compra aprovada! Obrigado por comprar conosco.');
-      cartStore.clearCart();
-  } else if (response.status === 'processando') {
-    alert('`🕒 Pagamento em processamento (Pedido #${response.pedido_id})')
-  } else {
-    alert('❌ Pagamento recusado. Por favor, tente novamente.');
-  }
-} catch (error) {
-    processing.value = false;
-    console.error('Erro no checkout:', error);
-    alert('Erro ao processar o pagamento. Por favor, tente novamente.');
-  }
+  window.location.href = '/PaymentPag';
+  
 }
 </script>
 

@@ -106,6 +106,7 @@
 </template>
 
 <script setup lang="ts">
+import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -147,6 +148,7 @@ const handleImageUpload = async (event: any) => {
       }
       userProfile.value.photoUrl = target.result as string;
       // rest of your code
+      console.log('Image uploaded successfully', userProfile.value.photoUrl);
     };
     reader.readAsDataURL(file)
     
@@ -181,6 +183,13 @@ onMounted(async () => {
 
 const editProfile = () => {
   console.log('Edit profile clicked')
+    axios.put('/api/update-profile', userProfile.value.photoUrl)
+    .then(() => {
+      console.log('Profile updated successfully')
+    })
+    .catch((error) => {
+      console.error('Error updating profile:', error)
+    })
 }
 </script>
 

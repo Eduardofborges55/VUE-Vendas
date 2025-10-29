@@ -6,6 +6,8 @@ import Administracao from '../views/Administracao/Administracao.vue'
 import Denuncia from '../views/Denuncia/Denuncia.vue'
 import Anuncios from '../views/Anuncios/Anuncios.vue'
 import Dashboard from '../views/Home/home.vue'
+import PaymentPag from '../views/PaymentPag/PaymentPag.vue'
+import PaymentOptions from '../components/PaymentOptions/PaymentOptions.vue'
 
 const routes = [
   {path: '/', name: 'Cadastro', component: Cadastro},
@@ -14,9 +16,9 @@ const routes = [
   {path: '/Administracao', name: 'Adiministracao', component: Administracao},
   {path: '/Denuncia', name: 'Denuncia', component: Denuncia}, 
   {path: '/Anuncios', name: 'Anuncios', component: Anuncios},
-  {path: '/Home', name: 'Home', component: Dashboard}
-
-
+  {path: '/Home', name: 'Home', component: Dashboard},
+  {path: '/PaymentPag', name: 'PaymentPag', component: PaymentPag},
+  {path: '/PaymentOptions', name: 'PaymentOptions', component: PaymentOptions},
 ]
 
 const router = createRouter({

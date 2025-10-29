@@ -42,7 +42,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
-const API_URL = 'http://localhost:5212/api' // Replace with your API URL
+const API_URL = 'http://localhost:5212/auth/login' // Replace with your API URL
 const router = useRouter()
 const loading = ref(false)
 
@@ -66,9 +66,10 @@ const handleLogin = async () => {
   loading.value = true
   
   try {
-    const response = await axios.post(`${API_URL}/Login`, {
-      email: formData.email,
-      senha: formData.senha
+    console.log('Enviando dados de login:', formData)
+    const response = await axios.post(`${API_URL}`, {
+      Email: formData.email,
+      Password: formData.senha
     })
 
     const { token, user } = response.data
@@ -84,8 +85,8 @@ const handleLogin = async () => {
     snackbar.message = 'Login realizado com sucesso!'
     snackbar.show = true
 
-    // Redirect to dashboard
-    router.push('/dashboard')
+    // Redirect to home
+    router.push('/home')
 
   } catch (error) {
     snackbar.color = 'error'

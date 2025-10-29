@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { CartItem } from '../stores/cartStore'
 
 export interface PedidoResponse {
+  PaginaCompra: any
   status: 'aprovado' | 'recusado' | 'processando'
   pedido_id: number
 }

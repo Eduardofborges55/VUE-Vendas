@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:5212/api'
+  baseURL: 'http://localhost:5212/auth/',
 })
 
 export interface Usuario {
@@ -10,7 +10,7 @@ export interface Usuario {
   nome: string
   cpf: string
   email: string
-  Senha: string
+  password: string
   telefone: string
   imagem?: string
 }
@@ -18,17 +18,17 @@ export interface Usuario {
 export default {
 
     async ListarUsuarios(): Promise<Usuario[]> {
-      const response = await api.get('/Usuario')
+      const response = await api.get('/register')
       return response.data
     },
 
     async CreateUser(user: Usuario): Promise<null> {
-    const response = await api.post('/Usuario', user)
+    const response = await api.post('/register', user)
     return response.data
   },
 
   async LoginUser(user: Usuario): Promise<null> {
-    const response = await api.post('/Usuario/login', user)
+    const response = await api.post('/register/login', user)
     return response.data
   }
 

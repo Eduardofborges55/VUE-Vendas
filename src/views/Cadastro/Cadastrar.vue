@@ -6,7 +6,7 @@
     <v-form @submit.prevent="salvarUsuario">
       <v-text-field v-model="usuario.nome" label="Nome" />
       <v-text-field v-model="usuario.email" label="Email" />
-      <v-text-field v-model="usuario.Senha" label="Senha" type="password" />
+      <v-text-field v-model="usuario.password" label="Senha" type="password" />
       <v-text-field v-model="usuario.telefone" label="Telefone" />
       <v-text-field v-model="usuario.cpf" label="CPF" />
       <v-btn type="submit" color="primary">Cadastrar</v-btn>
@@ -26,7 +26,7 @@ const usuario = ref<Usuario>({
   nome: '',
   cpf: '',
   email: '',
-  Senha: '',
+  password: '',
   telefone: ''
 })
 
@@ -42,7 +42,7 @@ async function makeApiRequest() {
   }
 
   try {
-    const response = await axios.post('http://localhost:5212/api/Usuario', { headers })
+    const response = await axios.post('http://localhost:5212/', { headers })
     console.log(response.data)
   } catch (error) {
     console.error('Erro ao buscar usuários:', error)
@@ -73,11 +73,11 @@ function validarCPF(cpf: string): boolean {
 // --- Função principal de salvamento ---
 
 
-async function salvarUsuario() {
-  if (!token) {
-    console.error('Token não encontrado')
-    return
-  }
+ async function salvarUsuario() {
+//   if (!token) {
+//     console.error('Token não encontrado')
+//     return
+//   }
 
   if (!validarCPF(usuario.value.cpf)) {
     console.error('CPF inválido')
@@ -96,7 +96,7 @@ async function salvarUsuario() {
       nome: '',
       cpf: '',
       email: '',
-      Senha: '',
+      password: '',
       telefone: ''
     }
   } catch (error) {
