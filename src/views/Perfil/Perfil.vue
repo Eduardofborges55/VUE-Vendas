@@ -132,35 +132,23 @@ const recentActivities = ref([
 ])
 
 const fileInput = ref<HTMLInputElement | null>(null)
+const base64Image = ref<string | null>(null)
 
-const handleImageUpload = async (event: any) => {
-  const file = event.target.files[0]
-  if (!file) return
-  
-  try {
-    // Create a preview URL
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const target = e.target as FileReader | null;
-      if (!target || target.result === null) {
-        console.error('Error reading file');
-        return;
-      }
-      userProfile.value.photoUrl = target.result as string;
-      // rest of your code
-      console.log('Image uploaded successfully', userProfile.value.photoUrl);
-    };
-    reader.readAsDataURL(file)
-    
-    // Here you would typically upload to your server
-    // const formData = new FormData()
-    // formData.append('photo', file)
-    // await axios.post('/api/upload-photo', formData)
-    
-  } catch (error) {
-    console.error('Error uploading image:', error)
+const handleImageUpload = (event: Event) => {
+  const file = (event.target as HTMLInputElement).files?.[0]
+  if(!file) return
+
+  const reader = new FileReader()
+  reader.onload = () => {
+    const result = reader.result as string
+    base64Image.value = result
+    userProfile.value.photoUrl = result
+    console.log('Imagem convertida com sucesso!')
   }
+  reader.readAsDataURL(file)
 }
+
+
 
 onMounted(async () => {
   try {
@@ -181,15 +169,25 @@ onMounted(async () => {
   }
 })
 
-const editProfile = () => {
-  console.log('Edit profile clicked')
-    axios.put('/api/update-profile', userProfile.value.photoUrl)
-    .then(() => {
-      console.log('Profile updated successfully')
-    })
-    .catch((error) => {
-      console.error('Error updating profile:', error)
-    })
+const editProfile = async () => {
+  console.log('Editando perfil...');
+
+  try{
+    const payload = {
+      nome: userProfile.value.nome,
+      email: userProfile.value.email,
+      telefone: userProfile.value.telefone,
+      photoUrl: userProfile.value.photoUrl
+    }
+
+    await axios.patch('/api/update-profile', payload)
+
+    console.log('Perfil editado com sucesso!');
+    alert('Perfil editado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao editar perfil:', error);
+    alert('Erro ao editar perfil: ' + error);
+  }
 }
 </script>
 
