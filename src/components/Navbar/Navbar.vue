@@ -62,22 +62,31 @@
                 <v-list-item-title class="text-h6">{{ item.nome }}</v-list-item-title>
                 <v-list-item-subtitle>R$ {{ item.preco.toFixed(2) }}</v-list-item-subtitle>
 
-                <v-row align="center" class="mx-0">
-                  <v-btn small icon @click="cartStore.decrementQuantity(item.id)">
-                    <v-icon>mdi-minus</v-icon>
-                  </v-btn>
-                  <span class="mx-2">{{ item.Quantidade }}</span>
-                  <v-btn small icon @click="cartStore.addToCart(item)">
-                    <v-icon>mdi-plus</v-icon>
-                  </v-btn>
-                </v-row>
-              </v-list-item-content>
+                <v-row align="center" class="mt-2">
+                  <v-col cols="auto">
+                    <v-btn icon density="comfortable" @click="cartStore.decrementQuantity(item.id)">
+                      <v-icon>mdi-minus</v-icon>
+                    </v-btn>
+                  </v-col>
 
-              <v-list-item-action>
-                <v-btn icon @click="cartStore.removeFromCart(item.id)">
-                  <v-icon color="error">mdi-delete</v-icon>
-                </v-btn>
-              </v-list-item-action>
+                  <v-col cols="auto" class="text-center">
+                    <span class="text-subtitle-1 font-weight-medium">{{ item.Quantidade }}</span>
+                  </v-col>
+
+                  <v-col cols="auto">
+                    <v-btn icon density="comfortable" @click="cartStore.addToCart(item)">
+                      <v-icon>mdi-plus</v-icon>
+                    </v-btn>
+                  </v-col>
+
+                  <v-col cols="auto">
+                    <v-btn icon color="error" density="comfortable" @click="cartStore.removeFromCart(item.id)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+
+              </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-card-text>
@@ -155,4 +164,19 @@ async function checkout() {
 .v-list-item {
   margin-bottom: 8px;
 }
+
+.v-btn {
+  box-shadow: none;
+}
+
+.v-list-item {
+  align-items: center;
+}
+
+.v-list-item-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 </style>
