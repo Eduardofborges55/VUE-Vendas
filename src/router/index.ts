@@ -8,6 +8,7 @@ import Anuncios from '../views/Anuncios/Anuncios.vue'
 import Dashboard from '../views/Home/home.vue'
 import PaymentPag from '../views/PaymentPag/PaymentPag.vue'
 import PaymentOptions from '../components/PaymentOptions/PaymentOptions.vue'
+import Obrigado from '../views/Obrigado/Obrigado.vue'
 
 const routes = [
   {path: '/', name: 'Cadastro', component: Cadastro},
@@ -19,6 +20,7 @@ const routes = [
   {path: '/Home', name: 'Home', component: Dashboard},
   {path: '/PaymentPag', name: 'PaymentPag', component: PaymentPag},
   {path: '/PaymentOptions', name: 'PaymentOptions', component: PaymentOptions},
+  {path: '/Obrigado', name: 'Obrigado', component: Obrigado},
 ]
 
 const router = createRouter({
