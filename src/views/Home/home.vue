@@ -5,6 +5,8 @@
       Procure produtos e compre com facilidade.
     </p>
 
+    <p>Bem-vindo, {{ auth.isAdmin }}</p>
+
     <!-- 🔍 Busca, categoria e preço -->
     <v-row class="mb-4" align="center" justify="center">
       <v-col cols="12" sm="6" md="4">
@@ -125,6 +127,9 @@
 import { ref, computed, onMounted } from 'vue'
 import produtoService, { Produto } from '../../services/produtoService'
 import { useCartStore } from '../../stores/cartStore'
+import { useAuthStore } from '../../stores/auth'
+
+const auth = useAuthStore()
 
 const produtos = ref<(Produto & { categoria?: string })[]>([])
 const loading = ref(true)

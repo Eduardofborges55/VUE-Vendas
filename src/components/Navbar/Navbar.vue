@@ -21,9 +21,11 @@
           <v-btn to="/anuncios" text>Anúncios</v-btn>
           <v-btn to="/perfil" text>Perfil</v-btn>
         </template>
-        
-        
-        <v-btn class="ma-2" color="white" @click="showCart = true">
+        <template v-if="isAdmin">
+          <v-btn to="/Administracao" text>Administração</v-btn>
+          <v-btn to="/Dashboard" text>Dashboard</v-btn>
+        </template>
+          <v-btn class="ma-2" color="white" @click="showCart = true">
           Carrinho
           <v-badge
             :content="cartItemCount"
@@ -152,10 +154,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useCartStore } from '../../stores/cartStore'
 import type { CartItem } from '../../stores/cartStore'
+import { defineStore } from 'pinia'
+import { jwtDecode, JwtPayload } from 'jwt-decode'
 
 const cartStore = useCartStore()
 const showCart = ref(false)
 const isLoggedIn = ref(false)
+const isAdmin = ref(false)
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)
 
@@ -164,6 +169,19 @@ onMounted(() => {
     const token = localStorage.getItem('token')
     if (token) {
       isLoggedIn.value = true
+
+      // Try to determine admin status from stored user info
+      const userStr = localStorage.getItem('user')
+      if (userStr) {
+        try {
+          const user = JSON.parse(userStr)
+          // Accept either user.role === 'admin' or a boolean flag user.isAdmin
+          isAdmin.value = user?.role === 'admin' || user?.isAdmin === true
+        } catch (e) {
+          // ignore parse errors
+        }
+      }
+
       clearInterval(checkToken)
     }
   }, 100)
@@ -173,8 +191,47 @@ function logout() {
   localStorage.removeItem('user')
   localStorage.removeItem('token')
   isLoggedIn.value = false
+  isAdmin.value = false
   window.location.href = '/login'
 }
+
+export const useAuthStore = defineStore('auth', {
+  state: () => ({
+    token: localStorage.getItem('token') || '',
+    user: null as null | JwtPayload,
+    isAdmin: false,
+  }),
+  actions: {
+    loadFromToken() {
+      const token = localStorage.getItem('token')
+      console.log('aquiiii ')
+      if (!token) return
+
+      try {
+        const decoded = jwtDecode(token) as any
+        console.log('aquiiii ')
+        this.user = decoded as JwtPayload
+        this.isAdmin = decoded.role === 'admin'
+      } catch (err) {
+        console.error('Token inválido:', err)
+        this.logout()
+      }
+    },
+
+    setToken(token: string) {
+      this.token = token
+      localStorage.setItem('token', token)
+      this.loadFromToken()
+    },
+
+    logout() {
+      this.token = ''
+      this.user = null
+      this.isAdmin = false
+      localStorage.removeItem('token')
+    }
+  }
+})
 
 const cartItemCount = computed(() =>
   cartStore.items.reduce((total: number, item: CartItem) => total + item.Quantidade, 0)

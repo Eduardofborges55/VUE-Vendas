@@ -1,31 +1,81 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Cadastro from '../views/Cadastro/Cadastrar.vue'
-import Login from '../views/Login/Login.vue'
-import Perfil from '../views/Perfil/Perfil.vue'
-import Administracao from '../views/Administracao/Administracao.vue'
-import Denuncia from '../views/Denuncia/Denuncia.vue'
-import Anuncios from '../views/Anuncios/Anuncios.vue'
-import Dashboard from '../views/Home/home.vue'
-import PaymentPag from '../views/PaymentPag/PaymentPag.vue'
-import PaymentOptions from '../components/PaymentOptions/PaymentOptions.vue'
-import Obrigado from '../views/Obrigado/Obrigado.vue'
+import { useAuthStore } from '../stores/auth'
 
+// 📦 Rotas da aplicação
 const routes = [
-  {path: '/', name: 'Cadastro', component: Cadastro},
-  {path: '/Login', name: 'Login', component: Login},
-  {path: '/Perfil', name: 'Perfil', component: Perfil},
-  {path: '/Administracao', name: 'Adiministracao', component: Administracao},
-  {path: '/Denuncia', name: 'Denuncia', component: Denuncia}, 
-  {path: '/Anuncios', name: 'Anuncios', component: Anuncios},
-  {path: '/Home', name: 'Home', component: Dashboard},
-  {path: '/PaymentPag', name: 'PaymentPag', component: PaymentPag},
-  {path: '/PaymentOptions', name: 'PaymentOptions', component: PaymentOptions},
-  {path: '/Obrigado', name: 'Obrigado', component: Obrigado},
+  {
+    path: '/',
+    name: 'Cadastro',
+    component: () => import('../views/Cadastro/Cadastrar.vue'),
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/Login/Login.vue'),
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: () => import('../views/Home/home.vue'),
+    meta: { requiresAuth: true }, // 🔒 Só logado
+  },
+  {
+    path: '/anuncios',
+    name: 'Anuncios',
+    component: () => import('../views/Anuncios/Anuncios.vue'),
+  },
+  {
+    path: '/perfil',
+    name: 'Perfil',
+    component: () => import('../views/Perfil/Perfil.vue'),
+    meta: { requiresAuth: true }, // 🔒 Só logado
+  },
+  {
+    path: '/Administracao',
+    name: 'Administracao',
+    component: () => import('../views/Administracao/Administracao.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }, // 🔒 Só admin
+  },
+ {
+  path: '/Dashboard2',
+  name: 'Dashboard2',
+  component: () => import('../views/Dashboard2/Dashboard2.vue'),
+  meta: { requiresAuth: true, requiresAdmin: true },
+},
+  {
+    path: '/PaymentPag',
+    name: 'PaymentPag',
+    component: () => import('../views/PaymentPag/PaymentPag.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
 
+// 🚦 Criação do router
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+})
+
+// 🧠 Proteção global de rotas
+router.beforeEach((to, from, next) => {
+  const auth = useAuthStore()
+
+  // Garante que o estado esteja sincronizado com o token localStorage
+  if (!auth.token && localStorage.getItem('token')) {
+    auth.loadFromToken()
+  }
+
+  // 🔐 Rota exige login
+  if (to.meta.requiresAuth && !auth.token) {
+    return next('/login')
+  }
+
+  // 🔐 Rota exige admin
+  if (to.meta.requiresAdmin && !auth.isAdmin) {
+    return next('/home')
+  }
+
+  next()
 })
 
 export default router

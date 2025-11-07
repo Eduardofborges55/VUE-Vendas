@@ -76,6 +76,7 @@ const handleLogin = async () => {
 
     // Save token and user data
     localStorage.setItem('token', token)
+    console.log('token', token)
     localStorage.setItem('user', JSON.stringify(user))
 
     // Configure axios defaults for future requests
