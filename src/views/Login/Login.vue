@@ -41,6 +41,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { jwtDecode } from 'jwt-decode'
 
 const API_URL = 'http://localhost:5212/auth/login' // Replace with your API URL
 const router = useRouter()
@@ -73,6 +74,9 @@ const handleLogin = async () => {
     })
 
     const { token, user } = response.data
+
+    const decode = jwtDecode(token)
+    console.log("Token decodificado:", decode)
 
     // Save token and user data
     localStorage.setItem('token', token)

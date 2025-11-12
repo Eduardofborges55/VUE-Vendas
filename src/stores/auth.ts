@@ -1,33 +1,22 @@
 import { defineStore } from 'pinia'
 import { jwtDecode } from 'jwt-decode'
 
-
-interface JwtPayload {
-  sub?: string
-  email?: string
-  role?: string
-  isAdmin?: boolean | 0 | 1
-  exp?: number
-}
-
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || '',
-    user: null as null | JwtPayload,
-    isAdmin: true,
+    user: null as any,
+    isAdmin: false,
   }),
 
   actions: {
     loadFromToken() {
       const token = localStorage.getItem('token')
-      console.log('aquiiii ', token)
       if (!token) return
 
       try {
-        const decoded = jwtDecode<JwtPayload>(token)
+        const decoded = jwtDecode(token) as any
         this.user = decoded
-        this.token = token
-        this.isAdmin = decoded.role === 'admin' || decoded.isAdmin === true || decoded.isAdmin === 1
+        this.isAdmin = decoded.role === 'admin'
       } catch (err) {
         console.error('Token inválido:', err)
         this.logout()
@@ -45,6 +34,7 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.isAdmin = false
       localStorage.removeItem('token')
+      window.location.href = '/login'
     },
   },
 })
