@@ -23,7 +23,7 @@
         </template>
         <template v-if="isAdmin">
           <v-btn to="/Administracao" text>Administração</v-btn>
-          <v-btn to="/Dashboard" text>Dashboard</v-btn>
+          <v-btn to="/Dashboard2" text>Dashboard</v-btn>
         </template>
           <v-btn class="ma-2" color="white" @click="showCart = true">
           Carrinho

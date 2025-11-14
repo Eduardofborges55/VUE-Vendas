@@ -89,9 +89,9 @@ const handleLogin = async () => {
     snackbar.color = 'success'
     snackbar.message = 'Login realizado com sucesso!'
     snackbar.show = true
-
+console.log('aqui logou')
     // Redirect to home
-    router.push('/home')
+    window.location.href = '/home'
 
   } catch (error) {
     snackbar.color = 'error'

@@ -230,7 +230,10 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
+
 })
+
+
 </script>
 
 <style scoped>

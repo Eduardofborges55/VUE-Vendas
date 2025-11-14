@@ -16,7 +16,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const decoded = jwtDecode(token) as any
         this.user = decoded
-        this.isAdmin = decoded.role === 'admin'
+        this.isAdmin = decoded.isAdmin
       } catch (err) {
         console.error('Token inválido:', err)
         this.logout()
@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = ''
       this.user = null
-      this.isAdmin = false
+      this.isAdmin = true
       localStorage.removeItem('token')
       window.location.href = '/login'
     },

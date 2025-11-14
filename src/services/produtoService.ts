@@ -11,6 +11,7 @@ export interface Produto {
   preco: number
   quantidade: number
   Quantidade?: number
+  estoque: number
   imagem: string
 }
 
