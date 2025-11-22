@@ -61,12 +61,12 @@ router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
 
   // Garante que o estado esteja sincronizado com o token localStorage
-  if (!auth.token && localStorage.getItem('token')) {
+  if (!auth.isAuthenticated && localStorage.getItem('token')) {
     auth.loadFromToken()
   }
 
   // 🔐 Rota exige login
-  if (to.meta.requiresAuth && !auth.token) {
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return next('/login')
   }
 

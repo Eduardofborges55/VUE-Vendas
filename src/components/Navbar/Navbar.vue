@@ -150,33 +150,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useCartStore } from '../../stores/cartStore'
 import type { CartItem } from '../../stores/cartStore'
-import { useAuthStore } from '../../stores/auth' // ✅ Importa a store separada
+import { useAuthStore } from '../../stores/auth'
 
-const auth = useAuthStore() // ✅ Usa a store
+const authStore = useAuthStore()
 const cartStore = useCartStore()
 const showCart = ref(false)
-const isLoggedIn = ref(false)
-const isAdmin = ref(false)
 const { mdAndDown } = useDisplay()
 const isMobile = computed(() => mdAndDown.value)
 
-onMounted(() => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    isLoggedIn.value = true
-    auth.loadFromToken()
-    isAdmin.value = auth.isAdmin
-  }
-})
+// Usa computed para reatividade automática
+const isLoggedIn = computed(() => authStore.isAuthenticated)
+const isAdmin = computed(() => authStore.isAdmin)
 
 function logout() {
-  auth.logout()
-  isLoggedIn.value = false
-  isAdmin.value = false
+  authStore.logout()
 }
 
 const cartItemCount = computed(() =>
