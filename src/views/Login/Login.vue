@@ -41,10 +41,11 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { jwtDecode } from 'jwt-decode'
+import { useAuthStore } from '../../stores/auth'
 
-const API_URL = 'http://localhost:5212/auth/login' // Replace with your API URL
+const API_URL = 'http://localhost:5212/auth/login'
 const router = useRouter()
+const authStore = useAuthStore()
 const loading = ref(false)
 
 const formData = reactive({
@@ -75,21 +76,18 @@ const handleLogin = async () => {
 
     const { token, user } = response.data
 
-    const decode = jwtDecode(token)
-    console.log("Token decodificado:", decode)
-
-    // Save token and user data
-    localStorage.setItem('token', token)
-    console.log('token', token)
-    localStorage.setItem('user', JSON.stringify(user))
-
-    // Configure axios defaults for future requests
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    // Usa a store centralizada para setar o token
+    authStore.setToken(token)
+    
+    // Salva dados do usuário no localStorage (se necessário)
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user))
+    }
 
     snackbar.color = 'success'
     snackbar.message = 'Login realizado com sucesso!'
     snackbar.show = true
-console.log('aqui logou')
+    
     // Redirect to home
     window.location.href = '/home'
 

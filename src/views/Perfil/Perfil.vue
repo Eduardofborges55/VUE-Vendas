@@ -101,7 +101,7 @@
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { jwtDecode } from 'jwt-decode'
+import { useAuthStore } from '../../stores/auth'
 
 interface UserProfile {
   id: number | null
@@ -112,7 +112,7 @@ interface UserProfile {
 }
 
 const router = useRouter()
-const token = localStorage.getItem('token')
+const authStore = useAuthStore()
 
 const userProfile = ref<UserProfile>({
   id: 0,
@@ -136,26 +136,32 @@ const recentActivities = ref([
 
 const fileInput = ref<HTMLInputElement | null>(null)
 
-// Buscar dados do backend
-const fetchUserData = async (userId: number) => {
-  try {
-    const response = await axios.get(`http://localhost:5212/auth/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    
-    const user = response.data
-    userProfile.value = {
-      id: user.id,
-      nome: user.nome || 'Usuário',
-      email: user.email || 'email@exemplo.com',
-      telefone: user.telefone || '(00) 00000-0000',
-      photoUrl: user.photoUrl || ''
+// Carrega dados do usuário baseado no JWT
+const loadUserProfileFromJWT = () => {
+  if (!authStore.isAuthenticated || !authStore.userId) {
+    return
+  }
+
+  // Tenta carregar a foto do localStorage (se foi salva anteriormente)
+  const savedUser = localStorage.getItem('user')
+  let photoUrl = ''
+  
+  if (savedUser) {
+    try {
+      const parsed = JSON.parse(savedUser)
+      photoUrl = parsed.photoUrl || ''
+    } catch (e) {
+      console.error('Erro ao ler dados salvos:', e)
     }
-    
-    localStorage.setItem('user', JSON.stringify(userProfile.value))
-  } catch (error) {
-    console.error('Erro ao buscar dados:', error)
-    alert('Erro ao carregar dados do usuário')
+  }
+
+  // Popula o perfil com dados do JWT
+  userProfile.value = {
+    id: authStore.userId,
+    nome: authStore.userName || 'Usuário',
+    email: authStore.userEmail || '',
+    telefone: authStore.userPhone || '',
+    photoUrl: photoUrl
   }
 }
 
@@ -164,17 +170,42 @@ const handleImageUpload = async (event: Event) => {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
 
+  // Validação do tipo de arquivo
+  if (!file.type.startsWith('image/')) {
+    alert('Por favor, selecione apenas arquivos de imagem')
+    return
+  }
+
+  // Validação do tamanho (máximo 5MB)
+  const maxSize = 5 * 1024 * 1024 // 5MB
+  if (file.size > maxSize) {
+    alert('A imagem deve ter no máximo 5MB')
+    return
+  }
+
+  // Verifica se o usuário tem ID válido
+  if (!userProfile.value.id) {
+    alert('ID do usuário não encontrado. Por favor, recarregue a página.')
+    return
+  }
+
   const reader = new FileReader()
   reader.onload = async (e) => {
     const base64 = e.target?.result as string
     userProfile.value.photoUrl = base64
     
-    // Salva no backend
+    // Salva no backend - envia todos os campos obrigatórios
     try {
       await axios.patch(
         `http://localhost:5212/auth/Update/${userProfile.value.id}`,
-        { photoUrl: base64 },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          id: userProfile.value.id,
+          nome: userProfile.value.nome,
+          email: userProfile.value.email,
+          telefone: userProfile.value.telefone,
+          photoUrl: base64
+        },
+        { headers: { Authorization: `Bearer ${authStore.token}` } }
       )
       
       // Atualiza localStorage apenas após sucesso
@@ -182,30 +213,41 @@ const handleImageUpload = async (event: Event) => {
       localStorage.setItem('user', JSON.stringify(userData))
       
       alert('Foto atualizada com sucesso!')
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar imagem:', error)
-      alert('Erro ao atualizar foto')
+      const errorMessage = error.response?.data?.message || error.message || 'Erro ao atualizar foto'
+      alert(`Erro ao atualizar foto: ${errorMessage}`)
+      // Reverte a mudança visual em caso de erro
+      const savedUser = localStorage.getItem('user')
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser)
+        userProfile.value.photoUrl = parsed.photoUrl || ''
+      }
     }
+  }
+
+  reader.onerror = () => {
+    alert('Erro ao ler o arquivo. Tente novamente.')
   }
 
   reader.readAsDataURL(file)
 }
 
 onMounted(() => {
-  if (!token) {
+  // Garante que o token está carregado na store
+  if (!authStore.token) {
+    authStore.loadFromToken()
+  }
+
+  // Verifica autenticação usando a store
+  if (!authStore.isAuthenticated || !authStore.userId) {
     alert('Usuário não autenticado')
     router.push('/login')
     return
   }
 
-  try {
-    const decoded = jwtDecode<{ userId: number }>(token)
-    fetchUserData(decoded.userId)
-  } catch (error) {
-    console.error('Token inválido:', error)
-    localStorage.clear()
-    router.push('/login')
-  }
+  // Carrega dados do perfil baseado no JWT
+  loadUserProfileFromJWT()
 })
 
 // Editar perfil
@@ -226,7 +268,7 @@ const editProfile = async () => {
         photoUrl: userProfile.value.photoUrl
       },
       {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${authStore.token}` }
       }
     )
 
