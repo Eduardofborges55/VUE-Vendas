@@ -9,6 +9,7 @@
       <v-text-field v-model="usuario.password" label="Senha" type="password" />
       <v-text-field v-model="usuario.telefone" label="Telefone" />
       <v-text-field v-model="usuario.cpf" label="CPF" />
+      <v-text-field v-model="usuario.data_nascimento" label="Data de Nascimento" type="date" />
       <v-btn type="submit" color="primary">Cadastrar</v-btn>
     </v-form>
   </v-container>
@@ -25,6 +26,7 @@ const usuario = ref<Usuario>({
   id: 0,
   nome: '',
   cpf: '',
+  data_nascimento: '',
   email: '',
   password: '',
   telefone: ''
@@ -49,11 +51,11 @@ async function makeApiRequest() {
   }
 }
 
+// ---- Validação de CPF ----
 function validarCPF(cpf: string): boolean {
   cpf = cpf.replace(/\D/g, '')
 
   if (cpf.length < 11) return false
-
   if (/^(\d)\1+$/.test(cpf)) return false
 
   let soma = 0
@@ -70,17 +72,34 @@ function validarCPF(cpf: string): boolean {
   return resto === parseInt(cpf.charAt(10))
 }
 
+// ---- Validação de maioridade ----
+function isMaiorDeIdade(dataNascimento: string): boolean {
+  const hoje = new Date()
+  const nascimento = new Date(dataNascimento)
+
+  let idade = hoje.getFullYear() - nascimento.getFullYear()
+  const mes = hoje.getMonth() - nascimento.getMonth()
+
+  // Ajuste caso ainda não tenha feito aniversário este ano
+  if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+    idade--
+  }
+
+  return idade >= 18
+}
+
 // --- Função principal de salvamento ---
+async function salvarUsuario() {
 
-
- async function salvarUsuario() {
-//   if (!token) {
-//     console.error('Token não encontrado')
-//     return
-//   }
-
+  // Valida CPF
   if (!validarCPF(usuario.value.cpf)) {
     console.error('CPF inválido')
+    return
+  }
+
+  // Valida maioridade
+  if (!isMaiorDeIdade(usuario.value.data_nascimento)) {
+    console.error('Usuário precisa ter 18 anos ou mais')
     return
   }
 
@@ -95,6 +114,7 @@ function validarCPF(cpf: string): boolean {
       id: 0,
       nome: '',
       cpf: '',
+      data_nascimento: '',
       email: '',
       password: '',
       telefone: ''
@@ -104,4 +124,3 @@ function validarCPF(cpf: string): boolean {
   }
 }
 </script>
-

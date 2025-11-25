@@ -113,6 +113,7 @@ const produto = ref<Omit<Produto, "img"> & { img: File | null }>({
   categoria: "",
   quantidade: 0,
   img: null,
+  estoque: 0
 });
 
 onMounted(async () => {
@@ -157,6 +158,7 @@ async function limparFormulario() {
     categoria: "",
     quantidade: 0,
     img: null,
+    estoque: 0,
   };
   const lista = await produtoService.listar();
   produtos.value = lista.map(p => ({ ...p, categoria: (p as any).categoria ?? "" }));

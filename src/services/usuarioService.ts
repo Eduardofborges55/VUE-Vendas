@@ -12,6 +12,7 @@ export interface Usuario {
   email: string
   password: string
   telefone: string
+  data_nascimento: string
   imagem?: string
 }
 
