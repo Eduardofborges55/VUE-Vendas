@@ -161,8 +161,9 @@ const loadUserProfileFromJWT = () => {
     nome: authStore.userName || 'Usuário',
     email: authStore.userEmail || '',
     telefone: authStore.userPhone || '',
-    photoUrl: photoUrl
+    photoUrl: authStore.userPhoto || photoUrl
   }
+  console.log('Perfil carregado:', authStore.userPhoto)
 }
 
 // Upload de imagem
@@ -203,7 +204,7 @@ const handleImageUpload = async (event: Event) => {
           nome: userProfile.value.nome,
           email: userProfile.value.email,
           telefone: userProfile.value.telefone,
-          photoUrl: base64
+          imagemBase64: base64
         },
         { headers: { Authorization: `Bearer ${authStore.token}` } }
       )
@@ -265,7 +266,7 @@ const editProfile = async () => {
         nome: userProfile.value.nome,
         email: userProfile.value.email,
         telefone: userProfile.value.telefone,
-        photoUrl: userProfile.value.photoUrl
+        imagemBase64: userProfile.value.photoUrl
       },
       {
         headers: { Authorization: `Bearer ${authStore.token}` }

@@ -23,7 +23,7 @@ const showPage = ref(true)
 function goToStore() {
   showPage.value = false
   setTimeout(() => {
-    window.location.href = '/'
+    window.location.href = '/Home'
   }, 1000)
 }
 

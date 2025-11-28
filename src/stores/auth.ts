@@ -10,7 +10,8 @@ export interface JwtPayload {
   telefone: string
   nome: string
   jti: string
-  isAdmin: string
+  isAdmin: string | boolean
+  imagebase64: string
   exp: number
   iss: string
   aud: string
@@ -60,6 +61,10 @@ export const useAuthStore = defineStore('auth', {
     userData(): JwtPayload | null {
       return this.decodedToken
     },
+
+    userPhoto(): string {
+      return this.decodedToken?.imagebase64 || ''
+    }
   },
 
   actions: {
@@ -104,6 +109,15 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('user')
       delete axios.defaults.headers.common['Authorization']
       window.location.href = '/login'
+    },
+
+    async socialLogin(token: string) {
+      try {
+        this.setToken(token)
+      } catch (error) {
+        console.error('Erro no login social:', error)
+        this.logout()
+      }
     },
   },
 })

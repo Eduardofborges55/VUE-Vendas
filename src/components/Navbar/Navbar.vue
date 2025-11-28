@@ -25,6 +25,7 @@
           <v-btn to="/Administracao" text>Administração</v-btn>
           <v-btn to="/Dashboard2" text>Dashboard</v-btn>
         </template>
+        <v-btn to="/MinhasCompras" text>Minhas Compras</v-btn>
           <v-btn class="ma-2" color="white" @click="showCart = true">
           Carrinho
           <v-badge

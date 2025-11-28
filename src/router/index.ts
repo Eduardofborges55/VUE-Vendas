@@ -48,6 +48,20 @@ const routes = [
     component: () => import('../views/PaymentPag/PaymentPag.vue'),
     meta: { requiresAuth: true },
   },
+
+  {
+    path: '/Obrigado',
+    name: 'Obrigado',
+    component: () => import('../views/Obrigado/Obrigado.vue'),
+    meta: { requiresAuth: true },
+  },
+
+  {
+    path: '/MinhasCompras',
+    name: 'MinhasCompras',
+    component: () => import('../views/minhasCompras/minhasCompras.vue'),
+    meta: { requiresAuth: true },
+  },
 ]
 
 // 🚦 Criação do router

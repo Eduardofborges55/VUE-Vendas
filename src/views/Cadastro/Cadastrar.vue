@@ -16,9 +16,52 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, h, ref } from 'vue'
 import usuarioService, { Usuario } from '../../services/usuarioService.ts'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
+const checkMin = computed(() => usuario.value.password.length >= 8)
+const checkUpper = computed(() => /[A-Z]/.test(usuario.value.password))
+const checkLower = computed(() => /[a-z]/.test(usuario.value.password))
+const checkNumber = computed(() => /\d/.test(usuario.value.password))
+const checkSpecial = computed(() => /[!@#$%^&*(),.?":{}|<>-_]/.test(usuario.value.password))
+const isPasswordValid = computed(() => 
+  checkMin.value && checkUpper.value && checkLower.value && checkNumber.value && checkSpecial.value
+)
+
+async function handleRegister() {
+  loading.value = true
+  errorMessage.value = ""
+
+  // Verifica se a senha é válida
+  if (!isPasswordValid.value) {
+    errorMessage.value = "❌ A senha não atende aos requisitos mínimos."
+    loading.value = false
+    return
+  }
+
+  try {
+    const response = await axios.post("http://localhost:8000/api/user", formData.value)
+
+    if (response.data.token) {
+      localStorage.setItem("token", response.data.token)
+    }
+
+    showSuccess.value = true
+    
+    // Redireciona com delay para ver a animação
+    setTimeout(() => {
+      window.location.href = "/login"
+    }, 2000)
+  } catch (error) {
+    const axiosError = error as AxiosError
+    errorMessage.value = (axiosError.response?.data && typeof axiosError.response.data === 'object' && 'message' in axiosError.response.data)
+      ? (axiosError.response.data as { message: string }).message
+      : "Falha no cadastro. Verifique os dados."
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // Estado do usuário
 const usuario = ref<Usuario>({
@@ -31,6 +74,12 @@ const usuario = ref<Usuario>({
   password: '',
   telefone: ''
 })
+
+// Estados para o registro
+const loading = ref(false)
+const errorMessage = ref('')
+const showSuccess = ref(false)
+const formData = ref(usuario.value)
 
 // Token salvo no localStorage
 const token = localStorage.getItem('token') || ''
@@ -103,6 +152,8 @@ async function salvarUsuario() {
     return
   }
 
+  
+
   try {
     await usuarioService.CreateUser(usuario.value)
     console.log('Usuário criado com sucesso!')
@@ -123,4 +174,6 @@ async function salvarUsuario() {
     console.error('Erro ao salvar usuário:', error)
   }
 }
+
+handleRegister()
 </script>
