@@ -14,18 +14,14 @@
         <template v-if="!isLoggedIn">
           <v-btn to="/" text>Cadastro</v-btn>
           <v-btn to="/login" text>Login</v-btn>
+          <v-btn to="/home" text>Home</v-btn>
         </template>
         <template v-else>
           <v-btn text @click="logout">Sair</v-btn>
-          <v-btn to="/home" text>Home</v-btn>
           <v-btn to="/anuncios" text>Anúncios</v-btn>
           <v-btn to="/perfil" text>Perfil</v-btn>
-        </template>
-        <template v-if="isAdmin">
-          <v-btn to="/Administracao" text>Administração</v-btn>
-          <v-btn to="/Dashboard2" text>Dashboard</v-btn>
-        </template>
-        <v-btn to="/MinhasCompras" text>Minhas Compras</v-btn>
+          <v-btn to="/home" text>Home</v-btn>
+          <v-btn to="/MinhasCompras" text>Minhas Compras</v-btn>
           <v-btn class="ma-2" color="white" @click="showCart = true">
           Carrinho
           <v-badge
@@ -38,6 +34,11 @@
             <v-icon end>mdi-cart</v-icon>
           </v-badge>
         </v-btn>
+        </template>
+        <template v-if="isAdmin">
+          <v-btn to="/Administracao" text>Administração</v-btn>
+          <v-btn to="/Dashboard2" text>Dashboard</v-btn>
+        </template>
       </template>
 
       <!-- Menu Mobile -->

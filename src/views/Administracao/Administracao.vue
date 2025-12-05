@@ -55,6 +55,7 @@ const error = ref(null)
 onMounted(async () => {
   try {
     const token = localStorage.getItem("token")
+    const user = localStorage.getItem("user")
 
     if (!token) {
       error.value = "Token não encontrado! Faça login novamente."
@@ -65,7 +66,7 @@ onMounted(async () => {
     // seta o token no axios
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 
-    //const response = await axios.get("'http://localhost:5212/")
+    const response = await axios.get("http://localhost:5212/auth/GetAllUsers")
 
     users.value = response.data
     console.log("Usuários recebidos:", users.value)

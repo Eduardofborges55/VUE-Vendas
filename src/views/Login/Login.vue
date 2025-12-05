@@ -27,7 +27,8 @@
       </v-btn>
     </v-form>
 
-    <div id="googleBtn" class="my-4"></div>
+    <div id="googleBtn" class="google-wrapper my-4"></div>
+
 
     <v-snackbar
       v-model="snackbar.show"
@@ -147,5 +148,14 @@ function handleGoogle(response) {
 
 .v-form {
   margin-top: 2rem;
+}
+
+.google-wrapper {
+  width: 100%;
+  display: flex;
+}
+
+.google-wrapper > div {
+  width: 100%; /* força o botão do Google a ocupar toda a largura */
 }
 </style>

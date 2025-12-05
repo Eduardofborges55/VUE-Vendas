@@ -36,7 +36,7 @@
 
         <v-col cols="12" sm="6">
           <v-file-input
-            v-model="produto.img"
+            v-model="produto.imagem"
             label="Imagem"
             accept="image/*"
             prepend-icon="mdi-image"
@@ -104,15 +104,14 @@ const categorias = ref([
   "Casa e Jardim"
 ]);
 
-const produto = ref<Omit<Produto, "img"> & { img: File | null }>({
+const produto = ref<Omit<Produto, "imagem"> & { imagem: File | null }>({
   id: 0,
   nome: "",
   preco: 0,
   descricao: "",
-  imagem: "",
+  imagem: null,
   categoria: "",
   quantidade: 0,
-  img: null,
   estoque: 0
 });
 
@@ -123,7 +122,7 @@ onMounted(async () => {
 
 async function adicionarProduto() {
   try {
-    if (produto.value.img && produto.value.img instanceof File) {
+    if (produto.value.imagem && produto.value.imagem instanceof File) {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64Img = e.target?.result as string;
@@ -131,13 +130,13 @@ async function adicionarProduto() {
 
         const response = await axios.post("http://localhost:5212/api/produto", {
           ...produto.value,
-          img: base64Img,
+          imagem: base64Img,
         });
 
         if ([200, 201].includes(response.status)) console.log("✅ Produto adicionado com sucesso");
         limparFormulario();
       };
-      reader.readAsDataURL(produto.value.img);
+      reader.readAsDataURL(produto.value.imagem);
     } else {
       const response = await axios.post("http://localhost:5212/api/produto", { ...produto.value });
       if ([200, 201].includes(response.status)) console.log("✅ Produto adicionado com sucesso (sem imagem)");
@@ -154,10 +153,9 @@ async function limparFormulario() {
     nome: "",
     preco: 0,
     descricao: "",
-    imagem: "",
+    imagem: null,
     categoria: "",
     quantidade: 0,
-    img: null,
     estoque: 0,
   };
   const lista = await produtoService.listar();

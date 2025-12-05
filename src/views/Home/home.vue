@@ -5,8 +5,6 @@
       Procure produtos e compre com facilidade.
     </p>
 
-    <p>Bem-vindo, {{ auth.isAdmin }}</p>
-
     <!-- 🔍 Busca, categoria e preço -->
     <v-row class="mb-4" align="center" justify="center">
       <v-col cols="12" sm="6" md="4">
@@ -46,7 +44,7 @@
     <!-- 🛍️ Grid de produtos -->
     <v-row dense>
       <v-col
-        v-for="produto in filteredProducts"
+        v-for="produto in paginatedProducts"
         :key="produto.id"
         cols="12"
         sm="6"
@@ -92,13 +90,25 @@
               color="primary"
               block
               @click="addToCart(produto)"
-              :disabled="produto.Quantidade === 0"
+              :disabled="!auth.isAuthenticated"
             >
               <v-icon start>mdi-cart</v-icon>
               Adicionar ao carrinho
             </v-btn>
           </v-card-actions>
         </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- 🔵 Paginação -->
+    <v-row justify="center" class="mt-6" v-if="filteredProducts.length > itemsPerPage">
+      <v-col cols="12" class="text-center">
+        <v-pagination
+          v-model="currentPage"
+          :length="totalPages"
+          total-visible="7"
+          color="primary"
+        />
       </v-col>
     </v-row>
 
@@ -124,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import produtoService, { Produto } from '../../services/produtoService'
 import { useCartStore } from '../../stores/cartStore'
 import { useAuthStore } from '../../stores/auth'
@@ -136,6 +146,10 @@ const loading = ref(true)
 const search = ref('')
 const selectedCategory = ref('Todos')
 const selectedPriceRange = ref('Todos')
+
+// 📌 Paginação
+const currentPage = ref(1)
+const itemsPerPage = ref(8) // quantidade por página
 
 const categories = ref(['Todos', 'Eletrônicos', 'Roupas', 'Livros', 'Games'])
 const priceRanges = ref([
@@ -170,40 +184,38 @@ const filteredProducts = computed(() =>
     const matchPrice = (() => {
       const preco = produto.preco
       switch (selectedPriceRange.value) {
-        case '0 a 100':
-          return preco >= 0 && preco <= 100
-        case '100 a 250':
-          return preco > 100 && preco <= 250
-        case '250 a 500':
-          return preco > 250 && preco <= 500
-        case '500 a 1000':
-          return preco > 500 && preco <= 1000
-        case '1000 a 2000':
-          return preco > 1000 && preco <= 2000
-        case '2000 a 3000':
-          return preco > 2000 && preco <= 3000
-        case '3000 a 4000':
-          return preco > 3000 && preco <= 4000
-        case '4000 a 5000':
-          return preco > 4000 && preco <= 5000
-        case '5000 a 6000':
-          return preco > 5000 && preco <= 6000
-        case '6000 a 7000':
-          return preco > 6000 && preco <= 7000
-        case '7000 a 8000':
-          return preco > 7000 && preco <= 8000
-        case '8000 a 9000':
-          return preco > 8000 && preco <= 9000
-        case '9000 a 10000':
-          return preco > 9000 && preco <= 10000
-        default:
-          return true
+        case '0 a 100': return preco >= 0 && preco <= 100
+        case '100 a 250': return preco > 100 && preco <= 250
+        case '250 a 500': return preco > 250 && preco <= 500
+        case '500 a 1000': return preco > 500 && preco <= 1000
+        case '1000 a 2000': return preco > 1000 && preco <= 2000
+        case '2000 a 3000': return preco > 2000 && preco <= 3000
+        case '3000 a 4000': return preco > 3000 && preco <= 4000
+        case '4000 a 5000': return preco > 4000 && preco <= 5000
+        default: return true
       }
     })()
 
     return matchSearch && matchCategory && matchPrice
   })
 )
+
+// 📌 Total de páginas
+const totalPages = computed(() =>
+  Math.ceil(filteredProducts.value.length / itemsPerPage.value)
+)
+
+// 📌 Produtos paginados
+const paginatedProducts = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value
+  const end = start + itemsPerPage.value
+  return filteredProducts.value.slice(start, end)
+})
+
+// Resetar página quando filtro mudar
+watch([search, selectedCategory, selectedPriceRange], () => {
+  currentPage.value = 1
+})
 
 const addToCart = (produto: Produto & { categoria?: string }) => {
   try {
@@ -217,7 +229,6 @@ const addToCart = (produto: Produto & { categoria?: string }) => {
 
 const showSnackbar = (message: string, color: 'success' | 'error') => {
   snackbar.value = { show: true, message, color }
-  setTimeout(() => (snackbar.value.show = false), 3000)
 }
 
 onMounted(async () => {
@@ -230,10 +241,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-
 })
-
-
 </script>
 
 <style scoped>
@@ -261,30 +269,5 @@ onMounted(async () => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-@media (max-width: 960px) {
-  .v-card-title {
-    font-size: 1rem;
-  }
-  .text-subtitle-1 {
-    font-size: 0.95rem;
-  }
-}
-
-@media (max-width: 600px) {
-  h1 {
-    font-size: 1.5rem;
-    text-align: center;
-  }
-  .v-card-title {
-    font-size: 0.9rem;
-  }
-  .v-btn {
-    font-size: 0.85rem;
-  }
-  .v-container {
-    padding: 10px;
-  }
 }
 </style>

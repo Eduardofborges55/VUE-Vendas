@@ -17,7 +17,7 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: () => import('../views/Home/home.vue'),
-    meta: { requiresAuth: true }, // 🔒 Só logado
+    meta: { requiresAuth: false }, // 🔒 Só logado
   },
   {
     path: '/anuncios',
