@@ -3,8 +3,15 @@ import { ref, onMounted } from "vue"
 
 const compras = ref([])
 
-onMounted(() => {
-  compras.value = JSON.parse(localStorage.getItem("minhasCompras") || "[]")
+onMounted(async () => {
+  try {
+    const response = await axios.get("https://localhost:5212/MinhasCompras/{usuarioId}")
+    compras.value = response.data   // ← já assume que a API retorna uma lista
+  } catch (error) {
+    console.error("Erro ao buscar compras:", error)
+  } finally {
+    loading.value = false
+  }
 })
 </script>
 

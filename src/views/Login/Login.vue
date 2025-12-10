@@ -27,9 +27,6 @@
       </v-btn>
     </v-form>
 
-    <div id="googleBtn" class="google-wrapper my-4"></div>
-
-
     <v-snackbar
       v-model="snackbar.show"
       :color="snackbar.color"
@@ -106,38 +103,7 @@ const handleLogin = async () => {
   }
 }
 
-onMounted(() => {
-  if (!window.google) return;
 
-  google.accounts.id.initialize({
-    client_id: "328391716778-v5t91mrhnfindsidp82jbv1tglcgae1m.apps.googleusercontent.com",
-    callback: handleGoogle
-  })
-
-  google.accounts.id.renderButton(
-    document.getElementById("googleBtn"),
-    {
-      theme: "filled_blue",
-      size: "large",
-      width: 300
-    }
-  )
-})
-
-function handleGoogle(response) {
-  const token = response.credential
-
-  console.log("Google Token:", token)
-
-  // Usa sua store existente
-  authStore.setToken(token)
-
-  snackbar.color = 'success'
-  snackbar.message = 'Login social realizado com sucesso!'
-  snackbar.show = true
-
-  window.location.href = '/home'
-}
 </script>
 
 <style scoped>

@@ -104,6 +104,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../../stores/cartStore'
+import axios from 'axios'
 
 // IMPORTS dos componentes externos
 import QrcodeVue from 'qrcode-vue3'
@@ -148,35 +149,52 @@ const isCardValid = computed(() => {
 /* ======================================================
    🔥 SALVAR COMPRA NO LOCALSTORAGE
 ====================================================== */
-function salvarCompra() {
-  const compras = JSON.parse(localStorage.getItem("minhasCompras") || "[]")
-
+async function enviarCompraParaAPI() {
   const novaCompra = {
-    id: Date.now(),
     total: cart.total,
-    data: new Date().toLocaleString(),
+    data: new Date().toISOString(),
     itens: cart.items.map(item => ({
       id: item.id,
       nome: item.nome,
       preco: item.preco,
       quantidade: item.Quantidade
-    }))
+    })),
+    formaPagamento: selected.value
   }
 
-  compras.push(novaCompra)
-  localStorage.setItem("minhasCompras", JSON.stringify(compras))
+  // ⬇️ Salva resposta com id
+  const response = await axios.post("https://localhost:5212/FormaPagamento", novaCompra)
+  return response.data.id // <-- retorna ID da compra para o próximo passo
 }
+
+
+async function atualizarPagamento(id: number) {
+  const response = await axios.patch(`https://localhost:5212/FormaPagamento/Pagar/${id}`)
+  return response.data
+}
+
 
 
 /* ======================================================
    🔥 FINALIZAR PAGAMENTO COMPLETO
 ====================================================== */
-function processPayment() {
-  salvarCompra()          // salva compra
-  cart.finalizarPagamento() // limpa carrinho sem repor estoque
-  alert('✅ Pagamento processado com sucesso!')
-  router.push('/Obrigado') // redireciona
+async function processPayment() {
+  try {
+    const idCompra = await enviarCompraParaAPI()   // retorna ID
+    await atualizarPagamento(idCompra)             // usa o ID
+
+    cart.finalizarPagamento()
+
+    alert('✅ Pagamento processado com sucesso!')
+    router.push('/Obrigado')
+
+  } catch (error) {
+    console.error(error)
+    alert('❌ Erro ao processar pagamento, tente novamente!')
+  }
 }
+
+
 
 
 /* ======================================================
