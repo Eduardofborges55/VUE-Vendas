@@ -122,7 +122,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import produtoService, { Produto } from '../../services/produtoService'
 import { useCartStore } from '../../stores/cartStore'
 
@@ -132,7 +132,7 @@ const search = ref('')
 const selectedCategory = ref('Todos')
 const selectedPriceRange = ref('Todos')
 
-const categories = ref(['Todos', 'Eletrônicos', 'Roupas', 'Livros', 'Games'])
+const categories = ref(['Todos', 'Eletrônicos', 'Roupas', 'Livros', 'Games', 'Bicicletas','Mobilia','Materiais de construção'])
 const priceRanges = ref([
   'Todos',
   '0 a 100',
@@ -200,6 +200,7 @@ const filteredProducts = computed(() =>
   })
 )
 
+
 const addToCart = (produto: Produto & { categoria?: string }) => {
   try {
     useCartStore().addToCart(produto)
@@ -214,6 +215,29 @@ const showSnackbar = (message: string, color: 'success' | 'error') => {
   snackbar.value = { show: true, message, color }
   setTimeout(() => (snackbar.value.show = false), 3000)
 }
+
+watch(selectedCategory, async (categoria) => {
+  console.log("Categoria selecionada mudou para:", categoria);
+  try {
+    loading.value = true;
+
+    if (categoria === "Todos") {
+      const response = await produtoService.listar();
+      console.log("Resposta ao listar todos os produtos:", response);
+      produtos.value = response || [];
+      return;
+    }
+
+    const response = await produtoService.listarPorCategoria(categoria);
+    console.log("Resposta ao filtrar por categoria:", response);
+    produtos.value = response || [];
+  } catch (error) {
+    console.error("Erro ao filtrar categoria:", error);
+  } finally {
+    loading.value = false;
+  }
+});
+
 
 onMounted(async () => {
   try {
