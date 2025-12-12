@@ -38,6 +38,11 @@ export default {
     return response.data
   },
 
+  async listarPorCategoria(categoria: string) {
+  return api.get(`/produto?categoria=${categoria}`)
+    .then(res => res.data)
+},
+
   async buscarPorNome(nome: string): Promise<Produto[]> {
     const response = await api.get(`/produtos?nome=${nome}`)
     return response.data

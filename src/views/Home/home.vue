@@ -151,7 +151,11 @@ const selectedPriceRange = ref('Todos')
 const currentPage = ref(1)
 const itemsPerPage = ref(8) // quantidade por página
 
-const categories = ref(['Todos', 'Eletrônicos', 'Roupas', 'Livros', 'Games'])
+// 📌 Paginação
+const currentPage = ref(1)
+const itemsPerPage = ref(8) // quantidade por página
+
+const categories = ref(['Todos', 'Eletrônicos', 'Roupas', 'Livros', 'Games', 'Bicicletas','Mobilia','Materiais de construção'])
 const priceRanges = ref([
   'Todos',
   '0 a 100',
@@ -230,6 +234,29 @@ const addToCart = (produto: Produto & { categoria?: string }) => {
 const showSnackbar = (message: string, color: 'success' | 'error') => {
   snackbar.value = { show: true, message, color }
 }
+
+watch(selectedCategory, async (categoria) => {
+  console.log("Categoria selecionada mudou para:", categoria);
+  try {
+    loading.value = true;
+
+    if (categoria === "Todos") {
+      const response = await produtoService.listar();
+      console.log("Resposta ao listar todos os produtos:", response);
+      produtos.value = response || [];
+      return;
+    }
+
+    const response = await produtoService.listarPorCategoria(categoria);
+    console.log("Resposta ao filtrar por categoria:", response);
+    produtos.value = response || [];
+  } catch (error) {
+    console.error("Erro ao filtrar categoria:", error);
+  } finally {
+    loading.value = false;
+  }
+});
+
 
 onMounted(async () => {
   try {
